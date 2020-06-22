@@ -1,13 +1,14 @@
 #!/bin/bash
 
-:'
-  author: sshasan
-  project: 
-  purpose: 
-    1. This script installs awscli, 
-    2. then creates the required aws cli folder (.aws), the credentials file, and the config file
-    3. populates the files with the required values (all environment variables are expected to be present)
-'
+#
+#  author: sshasan
+#  project: 
+#  purpose: 
+#    1. This script installs awscli, 
+#    2. then creates the required aws cli folder (.aws), the credentials file, and the config file
+#    3. populates the files with the required values (all environment variables are expected to be present)
+#
+
 pip install awscli
 
 echo "Creating the folder"
