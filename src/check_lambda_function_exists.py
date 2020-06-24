@@ -48,6 +48,7 @@ if __name__ == "__main__":
     parser.add_argument('--access', help='AWS Access Key ID', default=None)
     parser.add_argument('--secret', help='AWS Secret Key', default=None)
     parser.add_argument('--region', help='AWS Region', default='us-east-2')
+    parser.add_argument('--output', help='Put output in a file', default='function_exists.txt')
 
     args = parser.parse_args()
 
@@ -59,4 +60,6 @@ if __name__ == "__main__":
             'region': args.region
         }
 
-    print(check_lambda_exists(args.function, aws_credentials))
+    exists = check_lambda_exists(args.function, aws_credentials)
+    with open(args.output, 'w') as f:
+        f.write(f'{exists}')
