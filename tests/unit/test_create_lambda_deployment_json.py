@@ -87,7 +87,3 @@ class MyTestCase(unittest.TestCase):
                                     layers=["arn:aws:lambda:us-east-2:157648923453:layer:requests:13",
                                             "arn:aws:lambda:us-east-2:157648923453:layer:jsonschema:3"])
             self.assertEqual({}, json_body)
-
-
-if __name__ == '__main__':
-    unittest.main()

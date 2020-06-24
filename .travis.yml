@@ -11,7 +11,7 @@ install:
 script:
   - cd src
   - bash create_aws_environment.sh
-  - coverage run -m ../tests/
+  - coverage run -m pytest ../tests/
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)
