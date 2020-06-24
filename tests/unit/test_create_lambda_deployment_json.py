@@ -65,14 +65,14 @@ class MyTestCase(unittest.TestCase):
     def test_create_json_correct(self):
         correct_json = dict(FunctionName="testFunc", Runtime="python3.7",
                             Role="arn:aws:iam::157648923453:role/Data_Lambda_Full_Access",
-                            Handler="modulename.function_handler", Code={"ZipFile": "fileb://dummy.zip"},
+                            Handler="modulename.function_handler",
                             Description="dummy description", Timeout=60, MemorySize=256, Publish=False,
                             Layers=[ "arn:aws:lambda:us-east-2:157648923453:layer:requests:13",
                                      "arn:aws:lambda:us-east-2:157648923453:layer:jsonschema:3"])
         with patch('builtins.print') as _:
             json_body = create_json(function_name="testFunc", runtime="python3.7",
                                     role="arn:aws:iam::157648923453:role/Data_Lambda_Full_Access",
-                                    handler="modulename.function_handler", zip_file="dummy.zip",
+                                    handler="modulename.function_handler",
                                     description="dummy description", timeout=60, memory_size=256,
                                     layers=[ "arn:aws:lambda:us-east-2:157648923453:layer:requests:13",
                                              "arn:aws:lambda:us-east-2:157648923453:layer:jsonschema:3"])
@@ -82,7 +82,7 @@ class MyTestCase(unittest.TestCase):
         with patch('builtins.print') as _:
             json_body = create_json(function_name=None, runtime="python3.7",
                                     role="arn:aws:iam::157648923453:role/Data_Lambda_Full_Access",
-                                    handler="modulename.function_handler", zip_file="dummy.zip",
+                                    handler="modulename.function_handler",
                                     description="dummy description", timeout=60, memory_size=256,
                                     layers=["arn:aws:lambda:us-east-2:157648923453:layer:requests:13",
                                             "arn:aws:lambda:us-east-2:157648923453:layer:jsonschema:3"])

@@ -76,7 +76,7 @@ def get_lambda_layer_latest_version(layer_name: str, credentials: dict = None, c
         return '', None
 
 
-def create_json(function_name: str, runtime: str, role: str, handler: str, zip_file: str, description: str,
+def create_json(function_name: str, runtime: str, role: str, handler: str, description: str,
                 timeout: int = 3, memory_size: int = 128, publish: bool = False, layers: list = None,
                 tags: dict = None) -> dict:
     """
@@ -85,7 +85,6 @@ def create_json(function_name: str, runtime: str, role: str, handler: str, zip_f
     :param runtime: The runtime for the function eg. python3.7
     :param role: The ARN of the role to use for the lambda function
     :param handler: The handler within the function that executes. Should be of the format <module_name>.<handler>
-    :param zip_file: The path to the zip file where the code is. Should begin with fileb://
     :param description: The description for the lambda function
     :param timeout: The timeout value in seconds. Default is 3.
     :param memory_size: The memory size for the lambda function. Default is 128
@@ -97,20 +96,15 @@ def create_json(function_name: str, runtime: str, role: str, handler: str, zip_f
     """
     try:
         print('Running basic checks')
-        if None in [function_name, runtime, role, handler, zip_file]:
+        if None in [function_name, runtime, role, handler]:
             raise Exception('One of the required variables are not available')
         if description is None or description == '':
             description = f'Lambda function: {function_name}'
-        if 'fileb://' not in zip_file:
-            zip_file = f'fileb://{zip_file}'
         to_return = {
             "FunctionName": function_name,
             "Runtime": runtime,
             "Role": role,
             "Handler": handler,
-            "Code": {
-                "ZipFile": zip_file
-            },
             "Description": description,
             "Timeout": timeout,
             "MemorySize": memory_size,
@@ -138,8 +132,6 @@ if __name__ == "__main__":
                                               'Should be of the format <module_name>.<handler>', required=True)
         parser.add_argument('--runtime', help='The runtime for the function eg. python3.7', required=True)
         parser.add_argument('--role', help='The name of the role', required=True)
-        parser.add_argument('--zip', help='The path to the zip file where the code is. Should begin with fileb://',
-                            required=True)
         parser.add_argument('--description', help='The description for the lambda function', default=None)
         parser.add_argument('--timeout', help='The timeout value in seconds. Default is 3.', type=int, default=3)
         parser.add_argument('--memory', help='The memory size for the lambda function', type=int, default=128)
@@ -186,8 +178,8 @@ if __name__ == "__main__":
         role_arn = get_iam_role_arn(role_name=args.role, credentials=aws_credentials)
         print('Creating the JSON')
         json_file = create_json(function_name=args.function, runtime=args.runtime, role=role_arn, handler=args.handler,
-                                zip_file=args.zip, description=args.description, timeout=args.timeout,
-                                memory_size=args.memory, publish=args.publish, layers=layers, tags=tags)
+                                description=args.description, timeout=args.timeout, memory_size=args.memory,
+                                publish=args.publish, layers=layers, tags=tags)
         print(f'Writing the JSON file: \n{json.dumps(json_file, indent=4)}')
         with open(args.output, 'w') as f:
             json.dump(obj=json_file, fp=f)
