@@ -12,7 +12,7 @@
 pip install awscli
 
 echo "Creating the folder"
-if [[ -d "~/.aws" ]]; then
+if test -d ~/.aws; then
     echo "directory already exists, removing"
     rm -rf ~/.aws
 fi
