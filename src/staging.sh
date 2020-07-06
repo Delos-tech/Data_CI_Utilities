@@ -65,7 +65,7 @@ elif [[ "$VAR_MODE" == "deploy" ]]; then
         --output ${VAR_OUTPUT}
 
     echo "DEPLOY: Checking existence of lambda"
-    python check_lambda_function_exists.py --function data_domotz_api
+    python check_lambda_function_exists.py --function ${VAR_FUNC_NAME}
     function_exists=$(cat function_exists.txt)
     if [[ "$function_exists" == "1" ]]; then
         echo "DEPLOY: Function already exists, updating the code and configuration"
