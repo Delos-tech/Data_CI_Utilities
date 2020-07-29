@@ -35,8 +35,8 @@ class MyTestCase(unittest.TestCase):
     def test_get_lambda_layer_latest_version_correct(self):
         layers = ['requests', 'jsonschema']
         correct_arns = [
-            "arn:aws:lambda:us-east-2:157648923453:layer:requests:13",
-            "arn:aws:lambda:us-east-2:157648923453:layer:jsonschema:3"
+            "arn:aws:lambda:us-east-2:157648923453:layer:requests:14",
+            "arn:aws:lambda:us-east-2:157648923453:layer:jsonschema:4"
         ]
         acquired_arns = []
         client = None
