@@ -6,7 +6,7 @@ function usage(){
     exit 2
 }
 
-while getopts "z:e:u:d:k:?h" c
+while getopts "m:z:e:u:d:k:?h" c
 do
     case ${c} in
     m) VAR_MODE=$OPTARG ;;
