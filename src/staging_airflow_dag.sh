@@ -39,7 +39,7 @@ elif [[ "$VAR_MODE" == "deploy" ]]; then
     cd ../
 
     echo "[DEPLOY] deploying the file to the airflow server"
-    echo "scp -i \"$VAR_SERVER_PEM\" $VAR_ZIP_FILE ${VAR_SERVER_USER}@${VAR_SERVER_URL}:\"$VAR_SERVER_UPLOAD_DIR\"" | bash
+    echo "scp -i \"$VAR_SERVER_PEM\" $VAR_ZIP_FILE ${VAR_SERVER_USER}@${VAR_SERVER_URL}:\"$VAR_SERVER_UPLOAD_DIR\" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" | bash
     if [[ "$?" == "0" ]]; then
         echo "[DEPLOY] deployment successful"
         exit 0
