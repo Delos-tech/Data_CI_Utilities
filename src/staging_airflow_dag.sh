@@ -38,6 +38,9 @@ elif [[ "$VAR_MODE" == "deploy" ]]; then
     zip -r "../$VAR_ZIP_FILE" .
     cd ../
 
+    echo "[DEPLOY] changing key permission to 400"
+    echo "chmod 400 $VAR_SERVER_PEM" | bash
+
     echo "[DEPLOY] deploying the file to the airflow server"
     echo "scp -o StrictHostKeyChecking=no -i \"$VAR_SERVER_PEM\" $VAR_ZIP_FILE ${VAR_SERVER_USER}@${VAR_SERVER_URL}:\"$VAR_SERVER_UPLOAD_DIR\"" | bash
     if [[ "$?" == "0" ]]; then
