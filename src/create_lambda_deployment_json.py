@@ -194,7 +194,8 @@ if __name__ == "__main__":
         print('Creating the JSON')
         json_file = create_json(function_name=args.function, runtime=args.runtime, role=role_arn, handler=args.handler,
                                 description=args.description, timeout=args.timeout, memory_size=args.memory,
-                                publish=args.publish, lambda_layers=layers, tags=tags)
+                                publish=args.publish, lambda_layers=layers, tags=tags, vpc_subnets=args.vpc_subnets,
+                                vpc_security_groups=args.vpc_security_groups)
         print(f'Writing the JSON file: \n{json.dumps(json_file, indent=4)}')
         with open(args.output, 'w') as f:
             json.dump(obj=json_file, fp=f)
