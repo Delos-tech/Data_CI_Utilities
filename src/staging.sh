@@ -11,6 +11,8 @@ function usage(){
 function check_update_success(){
     if cat $1 | grep -q "\"LastUpdateStatus\": \"Successful\""; then
         return 1
+    elif cat $1 | grep -q "\"LastUpdateStatus\": \"InProgress\""; then
+        return 1
     else
         return 0
     fi
