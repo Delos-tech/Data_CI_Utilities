@@ -3,7 +3,8 @@
 function usage(){
     echo "Usage: $0 [-e MODE - test/deploy] [-f FUNCTION_NAME] [-r RUNTIME] [-a ROLE] \
         [-d HANDLER (MODULE_NAME.FUNCTION_NAME)] [-t TIMEOUT IN SECONDS] [-m MEMORY IN MB] \
-        [-l LAYERS AS A LIST IN QUOTES] [-o OUTPUT FILE FOR LAMBDA CONFIG] [-h HELP]"
+        [-l LAYERS AS A LIST IN QUOTES] [-v VPC SUBNETS AS A LIST IN QUOTES] \
+        [-s VPC SECURITY GROUPS AS A LIST IN QUOTES][-o OUTPUT FILE FOR LAMBDA CONFIG] [-h HELP]"
     exit 2
 }
 
@@ -15,7 +16,7 @@ function check_update_success(){
     fi
 }
 
-while getopts "e:f:r:a:d:t:m:l:o:?h" c
+while getopts "e:f:r:a:d:t:m:l:v:s:o:?h" c
 do
     case $c in
     e) VAR_MODE=$OPTARG ;;
@@ -26,6 +27,8 @@ do
     t) VAR_TIMEOUT=$OPTARG ;;
     m) VAR_MEMORY=$OPTARG ;;
     l) VAR_LAYERS=$OPTARG ;;
+    v) VAR_SUBNETS=$OPTARG ;;
+    s) VAR_SECURITY_GROUPS=$OPTARG ;;
     o) VAR_OUTPUT=$OPTARG ;;
     h|?) usage ;;
     esac
@@ -62,6 +65,8 @@ elif [[ "$VAR_MODE" == "deploy" ]]; then
         --timeout ${VAR_TIMEOUT} \
         --memory ${VAR_MEMORY} \
         --layers ${VAR_LAYERS}  \
+        --vpc-subnets ${VAR_SUBNETS} \
+        --vpc-security-groups ${VAR_SECURITY_GROUPS} \
         --output ${VAR_OUTPUT}
 
     echo "DEPLOY: Checking existence of lambda"
