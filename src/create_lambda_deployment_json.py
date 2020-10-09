@@ -40,7 +40,7 @@ def get_iam_role_arn(role_name: str, credentials: dict = None) -> str:
         return ''
 
 
-def get_lambda_layer_latest_version(layer_name: str, credentials: dict = None, client=None) -> tuple:
+def get_lambda_layer_latest_version(layer_name: str, credentials: dict = None, aws_client=None) -> tuple:
     """
     Extracts the latest version of the a lambda layer.
     :param layer_name: Name of the lambda layer to extract latest version from.
@@ -51,7 +51,7 @@ def get_lambda_layer_latest_version(layer_name: str, credentials: dict = None, c
         "region": <AWS region>
     }
     can be None (in which case the default shall be used)
-    :param client: Boto3 client that can be reused. If None, a new client is created.
+    :param aws_client: Boto3 client that can be reused. If None, a new client is created.
     :returns Tuple with first element as the layer ARN (empty if there is an error), and the second element the boto3
     client (None if an error has occured)
     """
@@ -60,15 +60,15 @@ def get_lambda_layer_latest_version(layer_name: str, credentials: dict = None, c
             raise Exception('Layer name not present')
 
         print('Setting up the AWS connection')
-        if client is None:
-            client = boto3.client('lambda') if not credentials else \
+        if aws_client is None:
+            aws_client = boto3.client('lambda') if not credentials else \
                 boto3.client('lambda', aws_access_key_id=credentials['aws_key'],
                              aws_secret_access_key=credentials['aws_secret'], region_name=credentials['region'])
         print('Getting the layer ARN')
-        response = client.list_layer_versions(LayerName=layer_name, MaxItems=1)
+        response = aws_client.list_layer_versions(LayerName=layer_name, MaxItems=1)
         if response['ResponseMetadata']['HTTPStatusCode'] == 200:
             version_info = response['LayerVersions'][0]['LayerVersionArn']
-            return version_info, client
+            return version_info, aws_client
         else:
             raise Exception('Status code was not 200.')
     except:
@@ -77,8 +77,8 @@ def get_lambda_layer_latest_version(layer_name: str, credentials: dict = None, c
 
 
 def create_json(function_name: str, runtime: str, role: str, handler: str, description: str,
-                timeout: int = 3, memory_size: int = 128, publish: bool = False, layers: list = None,
-                tags: dict = None) -> dict:
+                timeout: int = 3, memory_size: int = 128, publish: bool = False, lambda_layers: list = None,
+                tags: dict = None, vpc_subnets: list = None, vpc_security_groups: list = None) -> dict:
     """
     Create the JSON that the aws lambda create-function --cli-input-json will take
     :param function_name: The name of the Lambda function to display
@@ -89,9 +89,11 @@ def create_json(function_name: str, runtime: str, role: str, handler: str, descr
     :param timeout: The timeout value in seconds. Default is 3.
     :param memory_size: The memory size for the lambda function. Default is 128
     :param publish: Do we want to publish a new version? Default is False.
-    :param layers: List of ARNs of layers to include for the lambda.
+    :param lambda_layers: List of ARNs of layers to include for the lambda.
     :param tags: Any tags that we might want to associate with the lambda. Form of a dictionary with
     <key_name>: <tag_value> format
+    :param vpc_subnets: List of VPC subnets to associate with the lambda function.
+    :param vpc_security_groups: List of security groups to associate with the VPC.
     :return: A JSON in the expected format. Returns an empty JSON in case of an error.
     """
     try:
@@ -108,14 +110,24 @@ def create_json(function_name: str, runtime: str, role: str, handler: str, descr
             "Description": description,
             "Timeout": timeout,
             "MemorySize": memory_size,
-            "Publish": publish
+            "Publish": publish,
+            "VpcConfig": {
+                "SubnetIds": [],
+                "SecurityGroupIds": []
+            }
         }
-        if layers is not None:
-            if len(layers) is not 0:
-                to_return["Layers"] = layers
+        if lambda_layers is not None:
+            if len(lambda_layers) is not 0:
+                to_return["Layers"] = lambda_layers
         if tags is not None:
             if len(tags) is not 0:
                 to_return["Tags"] = tags
+        if vpc_subnets is not None:
+            if len(vpc_subnets) is not 0:
+                to_return['VpcConfig']['SubnetIds'] = vpc_subnets
+        if vpc_security_groups is not None:
+            if len(vpc_security_groups) is not 0:
+                to_return['VpcConfig']['SecurityGroupIds'] = vpc_security_groups
         return to_return
     except:
         print(f'There was an error. \n{traceback.format_exc()}')
@@ -137,7 +149,10 @@ if __name__ == "__main__":
         parser.add_argument('--memory', help='The memory size for the lambda function', type=int, default=128)
         parser.add_argument('--publish', help='Do we want to publish a new version? Default is False.', type=bool,
                             default=False)
-        parser.add_argument('--layers', help='Layer name(s), multiple names can be entered with spaces', required=True,
+        parser.add_argument('--layers', help='Layer name(s), multiple names can be entered with spaces', nargs='+',
+                            required=True)
+        parser.add_argument('--vpc-subnets', help='VPC subnets to associate with the Lambda', nargs='+')
+        parser.add_argument('--vpc-security-groups', help='VPC security groups to associate with the Lambda',
                             nargs='+')
         parser.add_argument('--tags', help='JSON file with tags', default=None)
         parser.add_argument('--access', help='AWS access key', default=None)
@@ -169,7 +184,7 @@ if __name__ == "__main__":
             client = None
             for layer in args.layers:
                 layer_arn, client = get_lambda_layer_latest_version(layer_name=layer, credentials=aws_credentials,
-                                                                    client=client)
+                                                                    aws_client=client)
                 if layer_arn is not '':
                     layers.append(layer_arn)
                 else:
@@ -179,7 +194,7 @@ if __name__ == "__main__":
         print('Creating the JSON')
         json_file = create_json(function_name=args.function, runtime=args.runtime, role=role_arn, handler=args.handler,
                                 description=args.description, timeout=args.timeout, memory_size=args.memory,
-                                publish=args.publish, layers=layers, tags=tags)
+                                publish=args.publish, lambda_layers=layers, tags=tags)
         print(f'Writing the JSON file: \n{json.dumps(json_file, indent=4)}')
         with open(args.output, 'w') as f:
             json.dump(obj=json_file, fp=f)

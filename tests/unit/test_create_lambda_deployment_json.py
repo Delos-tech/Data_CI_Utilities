@@ -43,9 +43,9 @@ class MyTestCase(unittest.TestCase):
         with patch('builtins.print') as _:
             for layer in layers:
                 layer_arn, client = get_lambda_layer_latest_version(layer_name=layer, credentials=self.aws_credentials,
-                                                                    client=client)
-                acquired_arns.append(layer_arn)
-            self.assertListEqual(acquired_arns, correct_arns)
+                                                                    aws_client=client)
+                layer_version = int(layer_arn.split(':')[-1])
+                self.assertGreater(layer_version, 1)
 
     def test_get_lambda_layer_latest_version_incorrect_layers(self):
         layer = 'incorrectLayer'
@@ -67,15 +67,19 @@ class MyTestCase(unittest.TestCase):
                             Role="arn:aws:iam::157648923453:role/Data_Lambda_Full_Access",
                             Handler="modulename.function_handler",
                             Description="dummy description", Timeout=60, MemorySize=256, Publish=False,
-                            Layers=[ "arn:aws:lambda:us-east-2:157648923453:layer:requests:13",
-                                     "arn:aws:lambda:us-east-2:157648923453:layer:jsonschema:3"])
+                            Layers=["arn:aws:lambda:us-east-2:157648923453:layer:requests:13",
+                                    "arn:aws:lambda:us-east-2:157648923453:layer:jsonschema:3"],
+                            VpcConfig=dict(SubnetIds=['subnet1', 'subnet2'], SecurityGroupIds=['sg1']))
         with patch('builtins.print') as _:
             json_body = create_json(function_name="testFunc", runtime="python3.7",
                                     role="arn:aws:iam::157648923453:role/Data_Lambda_Full_Access",
                                     handler="modulename.function_handler",
                                     description="dummy description", timeout=60, memory_size=256,
-                                    layers=[ "arn:aws:lambda:us-east-2:157648923453:layer:requests:13",
-                                             "arn:aws:lambda:us-east-2:157648923453:layer:jsonschema:3"])
+                                    lambda_layers=["arn:aws:lambda:us-east-2:157648923453:layer:requests:13",
+                                                   "arn:aws:lambda:us-east-2:157648923453:layer:jsonschema:3"],
+                                    vpc_subnets=['subnet1', 'subnet2'],
+                                    vpc_security_groups=['sg1']
+                                    )
             self.assertDictEqual(correct_json, json_body)
 
     def test_create_json_incorrect(self):
@@ -84,6 +88,6 @@ class MyTestCase(unittest.TestCase):
                                     role="arn:aws:iam::157648923453:role/Data_Lambda_Full_Access",
                                     handler="modulename.function_handler",
                                     description="dummy description", timeout=60, memory_size=256,
-                                    layers=["arn:aws:lambda:us-east-2:157648923453:layer:requests:13",
-                                            "arn:aws:lambda:us-east-2:157648923453:layer:jsonschema:3"])
+                                    lambda_layers=["arn:aws:lambda:us-east-2:157648923453:layer:requests:13",
+                                                   "arn:aws:lambda:us-east-2:157648923453:layer:jsonschema:3"])
             self.assertEqual({}, json_body)
