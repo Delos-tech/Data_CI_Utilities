@@ -13,6 +13,10 @@ function check_update_success(){
         return 1
     elif cat $1 | grep -q "\"LastUpdateStatus\": \"InProgress\""; then
         return 1
+    elif cat $1 | grep -q "\"Status\": \"Pending\""; then
+        return 1
+    elif cat $1 | grep -q "\"Status\": \"Active\""; then
+        return 1
     else
         return 0
     fi
