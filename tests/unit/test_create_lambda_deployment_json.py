@@ -82,6 +82,25 @@ class MyTestCase(unittest.TestCase):
                                     )
             self.assertDictEqual(correct_json, json_body)
 
+        correct_json = dict(FunctionName="testFunc", Runtime="python3.7",
+                            Role="arn:aws:iam::157648923453:role/Data_Lambda_Full_Access",
+                            Handler="modulename.function_handler",
+                            Description="dummy description", Timeout=60, MemorySize=256, Publish=False,
+                            Layers=["arn:aws:lambda:us-east-2:157648923453:layer:requests:13",
+                                    "arn:aws:lambda:us-east-2:157648923453:layer:jsonschema:3"],
+                            VpcConfig=dict(SubnetIds=[], SecurityGroupIds=[]))
+        with patch('builtins.print') as _:
+            json_body = create_json(function_name="testFunc", runtime="python3.7",
+                                    role="arn:aws:iam::157648923453:role/Data_Lambda_Full_Access",
+                                    handler="modulename.function_handler",
+                                    description="dummy description", timeout=60, memory_size=256,
+                                    lambda_layers=["arn:aws:lambda:us-east-2:157648923453:layer:requests:13",
+                                                   "arn:aws:lambda:us-east-2:157648923453:layer:jsonschema:3"],
+                                    vpc_subnets=['invalid'],
+                                    vpc_security_groups=['invalid']
+                                    )
+            self.assertDictEqual(correct_json, json_body)
+
     def test_create_json_incorrect(self):
         with patch('builtins.print') as _:
             json_body = create_json(function_name=None, runtime="python3.7",

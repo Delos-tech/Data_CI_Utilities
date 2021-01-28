@@ -124,10 +124,12 @@ def create_json(function_name: str, runtime: str, role: str, handler: str, descr
                 to_return["Tags"] = tags
         if vpc_subnets is not None:
             if len(vpc_subnets) is not 0:
-                to_return['VpcConfig']['SubnetIds'] = vpc_subnets
+                if not vpc_subnets[0].lower() == "invalid":
+                    to_return['VpcConfig']['SubnetIds'] = vpc_subnets
         if vpc_security_groups is not None:
             if len(vpc_security_groups) is not 0:
-                to_return['VpcConfig']['SecurityGroupIds'] = vpc_security_groups
+                if not vpc_security_groups[0].lower() == "invalid":
+                    to_return['VpcConfig']['SecurityGroupIds'] = vpc_security_groups
         return to_return
     except:
         print(f'There was an error. \n{traceback.format_exc()}')
